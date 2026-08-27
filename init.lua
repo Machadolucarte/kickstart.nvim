@@ -416,6 +416,31 @@ do
       { 'gr', group = 'LSP Actions', mode = { 'n' } },
     },
   }
+  -- [[ Noice.nvim ]]
+  -- Instala a dependência (nui) e o plugin principal (noice)
+  vim.pack.add { 
+    gh 'MunifTanjim/nui.nvim',
+    gh 'folke/noice.nvim' 
+  }
+
+  -- Inicia o plugin (equivalente à propriedade "opts" do lazy.nvim)
+  require('noice').setup {
+    lsp = {
+      -- Habilita o visual moderno para informações do LSP e Autocomplete
+      override = {
+        ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+        ["vim.lsp.util.stylize_markdown"] = true,
+        ["cmp.entry.get_documentation"] = true,
+      },
+    },
+    presets = {
+      bottom_search = false, -- Coloca a pesquisa (/) em uma janela flutuante
+      command_palette = true, -- Coloca os comandos (:) em uma janela flutuante
+      long_message_to_split = true, 
+      inc_rename = false,
+      lsp_doc_border = false, 
+    },
+  }
 
   -- [[ Colorscheme ]]
   -- You can easily change to a different colorscheme.
@@ -432,6 +457,8 @@ do
       native_lsp = { enabled = true },
       gitsigns = true,
       treesitter = true,
+      notify = true,
+      noice = true,
     },
   }
 
