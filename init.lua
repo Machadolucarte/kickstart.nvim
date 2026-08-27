@@ -416,12 +416,21 @@ do
       { 'gr', group = 'LSP Actions', mode = { 'n' } },
     },
   }
-  -- [[ Noice.nvim ]]
-  -- Instala a dependência (nui) e o plugin principal (noice)
-  vim.pack.add { 
-    gh 'MunifTanjim/nui.nvim',
-    gh 'folke/noice.nvim' 
+
+  vim.pack.add { gh 'rcarriga/nvim-notify' }
+  require('notify').setup {
+    stages = 'fade_in_slide_out',
+    timeout = 3000,
+    render = 'default',
+    background_colour = '#000000',
   }
+  vim.notify = require 'notify'
+    -- [[ Noice.nvim ]]
+    -- Instala a dependência (nui) e o plugin principal (noice)
+    vim.pack.add { 
+      gh 'MunifTanjim/nui.nvim',
+      gh 'folke/noice.nvim' 
+    }
 
   -- Inicia o plugin (equivalente à propriedade "opts" do lazy.nvim)
   require('noice').setup {
@@ -524,20 +533,46 @@ vim.cmd.colorscheme 'catppuccin'
   
   require('lualine').setup {
     options = {
-      theme = 'auto', -- Adapta-se perfeitamente ao seu tema Catppuccin atual
-      component_separators = { left = '', right = '' },
+      theme = 'auto',
+      component_separators = { left = '', right = '' },
       section_separators = { left = '', right = '' },
       globalstatus = true,
     },
     sections = {
-      lualine_a = { { 'mode', separator = { left = '', right = '' } } },
-      lualine_b = { 'filename', 'branch' },
-      lualine_c = {},
-      lualine_x = {},
-      lualine_y = { 'lsp' },
-      lualine_z = { { 'progress', separator = { left = '', right = '' } } },
+      -- LADO ESQUERDO
+      lualine_a = { 
+        { 'mode', separator = { left = '', right = '' } } 
+      },
+      lualine_b = { 
+        'branch', 
+        'diff',          -- Alterações do Git no arquivo
+        'diagnostics'    -- Erros e alertas do código
+      },
+      lualine_c = { 
+        'filename' 
+      },
+
+      -- LADO DIREITO
+      lualine_x = { 
+        'searchcount',   -- Contador de pesquisa
+        'selectioncount',-- Contador de seleção visual
+        'encoding',      -- utf-8
+        'fileformat',    -- unix/dos
+        'filetype'       -- Ícone da linguagem
+      },
+      lualine_y = { 
+        'filesize',      -- Tamanho do arquivo
+        'progress'       -- Porcentagem (%)
+      },
+      lualine_z = { 
+        { 'location', separator = { left = '', right = '' } } -- Linha:Coluna
+      },
     },
   }
+
+  vim.pack.add { gh 'vimpostor/vim-tpipeline' }
+  -- Habilita a integração automática
+  vim.g.tpipeline_autoembed = 1
 
   -- ... and there is more!
   --  Check out: https://github.com/nvim-mini/mini.nvim
