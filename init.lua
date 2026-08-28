@@ -220,6 +220,7 @@ do
   }
 
   vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+  vim.keymap.set('n', '<leader>r', ':wq | !nvim %<CR>', { silent = true })
 
   -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
   -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -531,48 +532,78 @@ vim.cmd.colorscheme 'catppuccin'
   -- [[ lualine.nvim (Barra de Status Personalizada) ]]
   vim.pack.add { gh 'nvim-lualine/lualine.nvim' }
   
-  require('lualine').setup {
+  -- =========================================================
+  -- FUNÇÕES CUSTOMIZADAS PARA A LUALINE
+  -- =========================================================
+  
+  -- 1. Mostra o nome dos LSPs ativos no arquivo atual
+  local function lsp_name()
+    local clients = vim.lsp.get_clients({ bufnr = 0 })
+    if next(clients) == nil then
+      return ''
+    end
+    local names = {}
+    for _, client in ipairs(clients) do
+      table.insert(names, client.name)
+    end
+    return ' ' .. table.concat(names, ', ')
+  end
+
+  -- 2. Mostra se você está gravando uma Macro no Neovim (ex: q a)
+  local function macro_recording()
+    local reg = vim.fn.reg_recording()
+    if reg == "" then return "" end
+    return "  @" .. reg
+  end
+
+  -- =========================================================
+  -- CONFIGURAÇÃO DA LUALINE
+  -- =========================================================
+  require("lualine").setup {
     options = {
-      theme = 'auto',
+      theme = 'auto', -- Voltamos pro auto para não dar erro!
       component_separators = { left = '', right = '' },
       section_separators = { left = '', right = '' },
       globalstatus = true,
     },
     sections = {
-      -- LADO ESQUERDO
+      -- ================= LADO ESQUERDO =================
       lualine_a = { 
-        { 'mode', separator = { left = '', right = '' } } 
+        {
+          'filetype',
+          icon_only = true,
+          colored = false,
+          separator = { left = '' }
+        },
+        { 'mode', separator = { right = '' } } 
       },
       lualine_b = { 
-        'branch', 
-        'diff',          -- Alterações do Git no arquivo
-        'diagnostics'    -- Erros e alertas do código
+        'branch' 
       },
       lualine_c = { 
-        'filename' 
+        -- FORÇANDO O FUNDO TRANSPARENTE ITEM POR ITEM
+        { 'filename', color = { bg = 'NONE' } },
+        { macro_recording, color = { fg = "#f38ba8", bg = "NONE", gui = "bold" } }
       },
 
-      -- LADO DIREITO
+      -- ================= LADO DIREITO =================
       lualine_x = { 
-        'searchcount',   -- Contador de pesquisa
-        'selectioncount',-- Contador de seleção visual
-        'encoding',      -- utf-8
-        'fileformat',    -- unix/dos
-        'filetype'       -- Ícone da linguagem
+        { 'searchcount', color = { bg = 'NONE' } },
+        { 'selectioncount', color = { bg = 'NONE' } },
+        { lsp_name, color = { fg = "#89b4fa", bg = "NONE", gui = "bold" } },
       },
       lualine_y = { 
-        'filesize',      -- Tamanho do arquivo
-        'progress'       -- Porcentagem (%)
+        'progress'
       },
       lualine_z = { 
-        { 'location', separator = { left = '', right = '' } } -- Linha:Coluna
+        { 'datetime', style = '%H:%M', separator = { right = '' } } 
       },
     },
   }
 
   vim.pack.add { gh 'vimpostor/vim-tpipeline' }
-  -- Habilita a integração automática
   vim.g.tpipeline_autoembed = 1
+  vim.g.tpipeline_clearbg = 1
 
   -- ... and there is more!
   --  Check out: https://github.com/nvim-mini/mini.nvim
