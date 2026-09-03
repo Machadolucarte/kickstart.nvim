@@ -142,7 +142,7 @@ do
   vim.o.signcolumn = 'yes'
 
   -- Decrease update time
-  vim.o.updatetime = 250
+  vim.o.updatetime = 1000
 
   -- Decrease mapped sequence wait time
   vim.o.timeoutlen = 300
@@ -164,6 +164,7 @@ do
   vim.o.tabstop = 4
   vim.o.shiftwidth = 4
   vim.o.expandtab = true
+
 
   -- Preview substitutions live, as you type!
   vim.o.inccommand = 'split'
@@ -198,13 +199,14 @@ do
   -- Diagnostic Config & Keymaps
   --  See `:help vim.diagnostic.Opts`
   vim.diagnostic.config {
-    update_in_insert = false,
+    update_in_insert = false, 
+    signs = true,
     severity_sort = true,
     float = { border = 'rounded', source = 'if_many' },
     underline = { severity = { min = vim.diagnostic.severity.WARN } },
 
     -- Can switch between these as you prefer
-    virtual_text = true, -- Text shows up at the end of the line
+    virtual_text = false, -- Text shows up at the end of the line
     virtual_lines = false, -- Text shows up underneath the line, with virtual lines
 
     -- Auto open the float, so you can easily read the errors when jumping with `[d` and `]d`
@@ -218,6 +220,12 @@ do
       end,
     },
   }
+
+  vim.api.nvim_create_autocmd("CursorHold", {
+    callback = function()
+      vim.diagnostic.open_float(nil, { focusable = false, border = "rounded" })
+    end,
+  })
 
   vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
   vim.keymap.set('n', '<leader>r', ':wq | !nvim %<CR>', { silent = true })
@@ -531,6 +539,9 @@ vim.cmd.colorscheme 'catppuccin'
 
   -- [[ lualine.nvim (Barra de Status Personalizada) ]]
   vim.pack.add { gh 'nvim-lualine/lualine.nvim' }
+
+  vim.pack.add { gh 'sbatin/platformio.nvim' }
+  require('platformio').setup {}
   
   -- =========================================================
   -- FUNÇÕES CUSTOMIZADAS PARA A LUALINE
@@ -604,6 +615,22 @@ vim.cmd.colorscheme 'catppuccin'
   vim.pack.add { gh 'vimpostor/vim-tpipeline' }
   vim.g.tpipeline_autoembed = 1
   vim.g.tpipeline_clearbg = 1
+
+  -- =====================================================
+  -- CORREÇÃO PARA A DUPLICAÇÃO DA BARRA NO TMUX DETACHED
+  -- =====================================================
+  vim.api.nvim_create_autocmd({ "VimEnter", "FocusGained" }, {
+    callback = function()
+      -- Só executa se estivermos dentro do Tmux
+      if vim.env.TMUX then
+        -- Dá 50 milissegundos de atraso para o Lualine terminar
+        -- de carregar, e então força a barra do Neovim a sumir
+        vim.defer_fn(function()
+          vim.o.laststatus = 0
+        end, 50)
+      end
+    end,
+  })
 
   -- ... and there is more!
   --  Check out: https://github.com/nvim-mini/mini.nvim
@@ -861,7 +888,7 @@ do
       filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
     },
     gopls = {},
-    pyright = {},
+    basedpyright = {},
     rust_analyzer = {},
 
     -- Some languages (like typescript) have entire language plugins that can be useful:
