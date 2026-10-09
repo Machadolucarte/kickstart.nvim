@@ -542,6 +542,32 @@ vim.cmd.colorscheme 'catppuccin'
 
   vim.pack.add { gh 'sbatin/platformio.nvim' }
   require('platformio').setup {}
+
+  -- [[ Zen Mode ]]
+  -- Modo sem distrações que centraliza o texto e esconde os painéis
+  vim.pack.add { gh 'folke/zen-mode.nvim' }
+  require('zen-mode').setup {
+    window = {
+      backdrop = 0.95, -- Escurece o fundo em 95%
+      width = 120, -- Largura máxima do texto centralizado
+      options = {
+        signcolumn = "no", -- Esconde a coluna de erros (diagnósticos)
+        number = false, -- Esconde os números das linhas
+        relativenumber = false,
+        cursorline = false, -- Esconde o sublinhado da linha atual
+        foldcolumn = "0", -- Esconde a coluna de dobras
+        list = false, -- Esconde os caracteres invisíveis (espaços/tabs)
+      },
+    },
+    plugins = {
+      -- Integração perfeita com o seu ambiente
+      tmux = { enabled = true }, -- Esconde a barra do Tmux automaticamente
+      alacritty = { enabled = false, font = "+4" }, -- Aumenta a fonte do terminal (opcional)
+    },
+  }
+
+  -- Atalho para ativar/desativar (Espaço + z)
+  vim.keymap.set('n', '<leader>z', '<cmd>ZenMode<CR>', { desc = 'Toggle [Z]en Mode' })
   
   -- =========================================================
   -- FUNÇÕES CUSTOMIZADAS PARA A LUALINE
